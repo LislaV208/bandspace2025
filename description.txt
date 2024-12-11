@@ -1,0 +1,109 @@
+BandSpace to platforma ułatwiająca amatorskim zespołom muzycznym współpracę nad materiałami audio, organizację plików, oraz komunikację przy tworzeniu muzyki. Aplikacja ma pełnić rolę wspólnego “workspace” dla zespołu, gdzie członkowie mogą przechowywać nagrania, odsłuchiwać je bezpośrednio w przeglądarce i komentować.
+
+Główne Funkcjonalności (MVP)
+Rejestracja i Logowanie Użytkowników
+
+Użytkownik tworzy konto za pomocą adresu e-mail i hasła.
+Po zalogowaniu zyskuje dostęp do swoich workspace’ów.
+Autoryzacja jest oparta o zewnętrzną usługę (np. Auth0).
+Workspace
+
+Użytkownik (administrator workspace) może utworzyć workspace – jednostkę reprezentującą projekt zespołu muzycznego.
+Workspace zawiera:
+Nazwę i opcjonalny opis.
+Listę członków zespołu (użytkowników, którzy mają do niego dostęp).
+Każdy członek może mieć przypisaną rolę (np. gitarzysta, wokalista), na poziomie MVP rolą jest jedynie wizualna etykieta.
+Administrator może zapraszać innych użytkowników do workspace poprzez e-mail lub wygenerowany link.
+Pliki Audio i Odtwarzanie
+
+W workspace można dodawać pliki audio (upload do chmury).
+Użytkownicy widzą listę dostępnych plików audio.
+Wbudowany odtwarzacz pozwala na: play/pause, przewijanie w czasie (seek), podstawowy interfejs kontroli dźwięku.
+Odtwarzanie odbywa się bezpośrednio w przeglądarce, nie ma potrzeby pobierania pliku.
+Komentarze
+
+Użytkownicy mogą dodawać komentarze tekstowe dotyczące całego workspace lub konkretnych plików.
+Komentarze wyświetlają się jako lista, można je przeglądać i w ten sposób dyskutować nad materiałem.
+Placeholder Płatności (Premium)
+
+W MVP dostępna jest strona “Pricing” informująca o planach premium.
+Integracja z usługą płatności (Stripe) jest w trybie testowym. Brak realnego procesu opłacania subskrypcji, jedynie placeholder dla funkcji planowanych w przyszłości.
+UI/UX
+
+Aplikacja posiada przemyślany, estetyczny design – podstawowe kolory, układ, typografia.
+Interfejs jest responsywny – na etapie MVP zadbano, by aplikacja była użyteczna także na tabletach i telefonach przez przeglądarkę.
+Scenariusze Użycia
+Scenariusz: Utworzenie Workspace
+
+Użytkownik loguje się.
+Przechodzi do panelu głównego, gdzie widzi listę swoich workspace’ów.
+Klikając “Utwórz nowy workspace” podaje nazwę i opis.
+Workspace zostaje utworzony, użytkownik widzi pustą listę plików, przycisk do zaproszenia członków i sekcję komentarzy.
+Scenariusz: Dodanie Pliku Audio
+
+Użytkownik będący w widoku danego workspace wybiera opcję “Dodaj plik”.
+Przegląda swój dysk lokalny, wybiera plik audio (np. mp3, wav).
+Plik jest wysyłany do chmury i po chwili pojawia się na liście.
+Użytkownik może kliknąć w plik, aby go odsłuchać w przeglądarce.
+Scenariusz: Dodanie Komentarza
+
+Użytkownik otwiera workspace i widzi listę plików oraz sekcję komentarzy.
+Wpisuje tekst w polu komentarza i zatwierdza.
+Komentarz pojawia się na liście, dostępny dla wszystkich członków workspace.
+Architektura Techniczna
+Frontend
+Technologie:
+
+Next.js (React): Zapewnia SSR/SSG, ułatwia routing, umożliwia prostą integrację z autoryzacją i ujednolicone środowisko do tworzenia UI.
+Tailwind CSS: Umożliwia szybkie tworzenie atrakcyjnych i responsywnych interfejsów bez nadmiernej ilości własnych stylów.
+HTML5 Audio API: Wbudowane możliwości przeglądarki do odtwarzania audio. W razie potrzeby można dołączyć lekką bibliotekę (np. wavesurfer.js) w przyszłości.
+Funkcjonalność Frontendu:
+
+Strony logowania/rejestracji (zintegrowane z Auth0).
+Dashboard z listą workspace’ów.
+Widok workspace: lista plików, odtwarzacz audio, komentarze.
+Strona pricing z placeholderem dla płatności.
+Backend
+Technologie:
+
+NestJS (Node.js): Strukturalny framework do tworzenia API REST, pozwalający utrzymać kod w dobrej organizacji.
+PostgreSQL + Prisma: Baza relacyjna do przechowywania danych o użytkownikach, workspace, plikach i komentarzach. Prisma ORM ułatwia tworzenie i migracje schematów oraz typowanie danych w kodzie.
+Auth0 (autoryzacja): Odpowiada za zarządzanie logowaniem, tokenami dostępu i tożsamością użytkowników.
+AWS S3 (storage plików): Przechowywanie przesłanych plików audio. Backend generuje podpisane URL-e dla uploadu oraz odczytu.
+Stripe (placeholder): Obecnie jedynie integracja w trybie testowym dla przyszłych płatności.
+Funkcjonalność Backendowa:
+
+Endpointy do rejestracji/logowania (w praktyce obsługiwane głównie przez Auth0, backend może weryfikować tokeny JWT).
+Endpointy CRUD dla workspace (tworzenie, pobieranie listy, dodawanie użytkowników).
+Endpointy do zarządzania plikami audio (generowanie URL do uploadu, zapisywanie metadanych w bazie, zwracanie listy plików).
+Endpointy do komentarzy (dodawanie, pobieranie listy).
+Podstawowe logi i obsługa błędów.
+Infrastruktura i Hosting
+Frontend: Hostowany na Vercel – automatyczne buildy, łatwe wdrożenia i CI/CD.
+Backend: Hostowany na Render lub Railway – szybkie wdrożenie aplikacji Node.js, skalowanie w razie potrzeby.
+Baza Danych: Zarządzany PostgreSQL (np. na Render/Railway lub innej usłudze).
+Storage: AWS S3 do przechowywania plików audio.
+Proces Developmentu i CI/CD
+Kod frontendu i backendu w repozytorium (GitHub/GitLab).
+Każdy push na branch main/development uruchamia pipeline (Vercel: frontend, Render/Railway: backend).
+Po zatwierdzeniu zmian aplikacja jest automatycznie wdrażana.
+Ustawienia zmiennych środowiskowych (np. klucze do Auth0, AWS S3, baza danych) w panelu usług hostingowych.
+Bezpieczeństwo i Uprawnienia
+Użytkownik musi być zalogowany, aby mieć dostęp do jakichkolwiek danych workspace.
+Token JWT (od Auth0) potwierdza tożsamość użytkownika – backend waliduje token przy każdym żądaniu.
+Administrator workspace ma prawo zapraszania nowych członków, inni użytkownicy mogą jedynie dodawać pliki i komentarze.
+Skalowalność i Rozszerzenia na Przyszłość
+W MVP skupiamy się na prostych, podstawowych funkcjonalnościach.
+W przyszłości można dodać:
+Zaawansowane role i uprawnienia (np. kto może usuwać pliki).
+Harmonogram prób, integrację z kalendarzami.
+Bardziej rozbudowany system płatności i subskrypcji premium.
+Lepszą obsługę notyfikacji (e-mail, push).
+Zaawansowane narzędzia do edycji audio lub komentarze timestampowane.
+Podsumowanie
+Aplikacja BandSpace (MVP) to prosty, ale funkcjonalny serwis webowy umożliwiający amatorskim zespołom muzycznym:
+
+Zakładanie i zarządzanie workspace’ami.
+Wgrywanie i odsłuchiwanie plików audio.
+Dodawanie komentarzy i wymianę opinii o materiałach.
+Podstawową autoryzację i kontrolę dostępu.

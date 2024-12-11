@@ -1,0 +1,187 @@
+
+Backlog jest pogrupowany według epików (E1 - E8).
+
+E1: Autoryzacja i Zarządzanie Użytkownikami
+US1: Rejestracja Użytkownika
+Cel: Użytkownik może utworzyć konto za pomocą e-maila i hasła.
+Zadania:
+
+[T1.1] Integracja Auth0 z backendem (NestJS) - done
+[T1.2] Skonfigurowanie aplikacji Auth0 (utworzenie aplikacji, pozyskanie Client ID, Domain) - done
+[T1.3] Implementacja na froncie (Next.js) formularza rejestracji (email, hasło) i obsługa odpowiedzi z Auth0
+[T1.4] Walidacja danych na froncie (prostolinijne: wymagane pola, poprawny e-mail)
+[T1.5] Testy end-to-end (np. Cypress) rejestracji użytkownika
+AC:
+[AC1] Po podaniu poprawnego maila i hasła użytkownik może założyć konto i następnie się zalogować.
+[AC2] Błędne dane skutkują komunikatem o błędzie.
+US2: Logowanie i Wylogowanie Użytkownika
+Cel: Użytkownik posiadający konto może się zalogować i uzyskać dostęp do swojego panelu.
+Zadania:
+
+[T2.1] Integracja logowania przez Auth0 na froncie (link do strony logowania Auth0 lub własny formularz)
+[T2.2] Obsługa tokenów JWT w aplikacji frontowej (zapisywanie, refresh tokenów jeśli potrzebne)
+[T2.3] Middleware w backendzie weryfikujący token i udzielający dostępu do zasobów
+[T2.4] Przycisk “Wyloguj” na froncie (usunięcie tokenów, redirect na stronę logowania)
+AC:
+[AC1] Użytkownik po zalogowaniu widzi stronę główną (np. listę workspace’ów), po wylogowaniu wraca na stronę logowania.
+[AC2] Bez ważnego tokenu użytkownik nie ma dostępu do widoków wymagających autoryzacji.
+US3: Zarządzanie Członkami Workspace (Zapraszanie)
+Cel: Administrator workspace może zaprosić innych użytkowników.
+Zadania:
+
+[T3.1] Endpoint backendowy do dodawania użytkownika do workspace (wymaga podania emaila zaproszonego)
+[T3.2] Integracja na froncie: formularz lub modal do wprowadzenia emaila, wysłanie żądania do backendu
+[T3.3] Walidacja: sprawdzenie czy zapraszana osoba ma konto, jeśli nie - opcjonalnie wysłanie jej linku rejestracyjnego (MVP: zakładamy, że ma konto)
+[T3.4] Aktualizacja listy członków w UI po pomyślnym dodaniu
+AC:
+[AC1] Administrator workspace może podać email użytkownika, który zostaje dodany do listy członków workspace.
+[AC2] Dodany użytkownik po zalogowaniu widzi ten workspace na swojej liście.
+E2: Workspace i Zarządzanie Projektami
+US5: Tworzenie Nowego Workspace
+Cel: Użytkownik tworzy nowy workspace i staje się jego administratorem.
+Zadania:
+
+[T5.1] Endpoint POST /workspaces (NestJS, Prisma) tworzący rekord w bazie
+[T5.2] Formularz na froncie: nazwa workspace + opcjonalny opis
+[T5.3] Powiązanie workspace z zalogowanym użytkownikiem jako adminem (rola “admin” w polu role lub flagach)
+[T5.4] Testy integracyjne (utworzenie workspace, sprawdzenie w bazie)
+AC:
+[AC1] Po utworzeniu workspace użytkownik widzi go na liście.
+[AC2] Tylko zalogowany użytkownik może tworzyć workspace.
+US6: Przeglądanie Listy Workspace’ów
+Cel: Użytkownik widzi listę wszystkich workspace, do których ma dostęp.
+Zadania:
+
+[T6.1] Endpoint GET /workspaces?userId=X zwracający listę workspace’ów użytkownika
+[T6.2] Front-end: Strona główna (dashboard) wyświetlająca listę z linkami do poszczególnych workspace
+[T6.3] Prostokątne karty z nazwą workspace, opcjonalnie krótkim opisem
+AC:
+[AC1] Użytkownik zalogowany widzi swoje workspace.
+[AC2] Użytkownik niezalogowany nie widzi żadnych workspace (przekierowanie na logowanie).
+US7: Edycja Danych Workspace (Administrator)
+Cel: Administrator może zmienić nazwę/opis workspace.
+Zadania:
+
+[T7.1] Endpoint PUT /workspaces/:id (sprawdzenie uprawnień admina)
+[T7.2] Formularz edycji na froncie (np. modal z nazwą i opisem)
+[T7.3] Aktualizacja danych w bazie i odświeżenie UI
+AC:
+[AC1] Tylko administrator workspace może edytować jego dane.
+[AC2] Po zapisaniu zmian nowe dane są widoczne dla wszystkich członków.
+US8: Przypisywanie Ról Użytkownikom (Tagowanie)
+Cel: Możliwość przypisania prostych “tagów” roli do użytkownika w workspace.
+Zadania:
+
+[T8.1] Pole “role” lub “tag” w tabeli member-workspace (relacja użytkownik-workspace).
+[T8.2] Formularz lub dropdown do wyboru roli (np. wokalista, gitarzysta)
+[T8.3] Endpoint PATCH /workspaces/:id/members/:memberId do aktualizacji roli
+[T8.4] Wyświetlanie ról w UI przy liście członków
+AC:
+[AC1] Administrator może zmieniać tagi/role.
+[AC2] Role wyświetlają się jako etykiety przy użytkownikach w UI.
+E3: Zarządzanie Plikami Audio
+US9: Upload Plików Audio
+Cel: Użytkownik (członek workspace) może przesłać plik audio.
+Zadania:
+
+[T9.1] Integracja backendu z AWS S3 (utworzenie bucketu, konfiguracja AWS SDK)
+[T9.2] Endpoint POST /workspaces/:id/files do generowania podpisanego URL-a do uploadu
+[T9.3] Frontend: formularz uploadu, użycie podpisanego URL-a do wysłania pliku bezpośrednio do S3
+[T9.4] Zapis metadanych pliku (nazwa, ścieżka w S3, userId, workspaceId) w PostgreSQL
+[T9.5] Walidacja rozmiaru i formatu pliku (opcjonalnie w MVP - minimalnie sprawdzić typ MIME)
+AC:
+[AC1] Po udanym uploadzie plik pojawia się na liście plików workspace.
+[AC2] Użytkownicy workspace mają dostęp do odtworzenia nowo przesłanego pliku.
+US10: Lista Plików Audio
+Cel: Użytkownik widzi wszystkie pliki audio dodane do workspace.
+Zadania:
+
+[T10.1] Endpoint GET /workspaces/:id/files zwracający listę metadanych plików
+[T10.2] Front-end: wyświetlanie listy, np. w formie tabeli lub kafelków z nazwą pliku i przyciskiem “Odtwórz”
+AC:
+[AC1] Lista pokazuje nazwę i podstawowe info (np. kto dodał, data dodania).
+[AC2] Jeśli workspace nie ma plików, wyświetla się komunikat “Brak plików”.
+US11: Odtwarzanie Pliku Audio
+Cel: Użytkownik może odtwarzać wybrany plik audio w przeglądarce.
+Zadania:
+
+[T11.1] Pobranie URL-a pliku z bazy i wygenerowanie linku do S3 (publicznego lub podpisanego na czas sesji)
+[T11.2] Na froncie użycie HTML5 z kontrolkami (play/pause, seek)
+[T11.3] Przycisk “Odtwórz” przy pliku ładuje ścieżkę audio do odtwarzacza
+AC:
+[AC1] Po kliknięciu “Odtwórz” użytkownik słyszy dźwięk, może pauzować i przewijać.
+[AC2] Odtwarzacz obsługuje co najmniej MP3, WAV (lub formaty wspierane natywnie przez przeglądarki).
+E4: Komentarze i Komunikacja
+US12: Dodawanie Komentarzy
+Cel: Użytkownicy workspace mogą dodać komentarz do workspace lub konkretnego pliku.
+Zadania:
+
+[T12.1] Schemat komentarzy w bazie: komentarz powiązany z workspace_id i opcjonalnie file_id
+[T12.2] Endpoint POST /workspaces/:id/comments (parametry: treść, file_id opcjonalne)
+[T12.3] Frontend: pole tekstowe i przycisk “Dodaj komentarz”
+[T12.4] Walidacja: pusty komentarz nie jest dodawany
+AC:
+[AC1] Po dodaniu komentarza, odświeżenie listy komentarzy pokazuje nowy wpis.
+[AC2] Komentarz związany z plikiem jest wyświetlany przy tym pliku, a ogólny komentarz workspace – w sekcji ogólnej.
+US13: Wyświetlanie Komentarzy
+Cel: Użytkownicy widzą istniejące komentarze.
+Zadania:
+
+[T13.1] Endpoint GET /workspaces/:id/comments (możliwość filtrowania po file_id)
+[T13.2] Frontend: lista komentarzy pod workspace/plikami
+[T13.3] Formatowanie czasu dodania komentarza i nazwy użytkownika
+AC:
+[AC1] Komentarze są sortowane po dacie dodania (np. najnowsze na górze lub odwrotnie).
+[AC2] W komentarzu widać autora i datę.
+E5: Podstawowy UI/UX i Design
+US14: Spójny i Estetyczny Interfejs
+Cel: Interfejs jest estetyczny, responsywny i czytelny.
+Zadania:
+
+[T14.1] Konfiguracja Tailwind CSS, stworzenie podstawowej palety kolorów i stylów globalnych
+[T14.2] Zaprojektowanie layoutu strony głównej (lista workspace), widoku workspace (lista plików, odtwarzacz, komentarze)
+[T14.3] Dopracowanie formularzy logowania, rejestracji i edycji workspace
+[T14.4] Podstawowy responsive design (flex, grid, breakpoints Tailwinda)
+AC:
+[AC1] Aplikacja wygląda estetycznie na desktopie i na mobilnych urządzeniach (przynajmniej brak rozjazdów).
+[AC2] Spójna kolorystyka, czytelne przyciski, prosta nawigacja.
+E6: Placeholder Płatności (Stripe)
+US16: Strona Pricing z Placeholderem
+Cel: Użytkownik widzi stronę pricing, gdzie jest informacja o planach premium.
+Zadania:
+
+[T16.1] Strona /pricing na froncie z opisem planów (na razie statyczne dane)
+[T16.2] Przycisk “Kup plan premium” (w MVP nie finalizuje transakcji, może prowadzić do testowego checkoutu Stripe)
+[T16.3] Integracja z Stripe w trybie testowym - klucz testowy, generowanie linków do testowego checkoutu (opcjonalnie)
+AC:
+[AC1] Użytkownik widzi jakie będą plany premium (tekstowe informacje).
+[AC2] Przycisk “Kup” może prowadzić do testowej strony Stripe (tryb testowy), ale nie wymaga realnych płatności.
+E7: DevOps i Infrastruktura
+T1: Konfiguracja Bazy Danych i Prisma
+
+Utworzenie bazy PostgreSQL (np. w Railway)
+Zdefiniowanie schematów Prisma (tabele: Users, Workspaces, Memberships, Files, Comments)
+Migracje schematu do bazy
+T2: Integracja Backend/Frontend i CI/CD
+
+Skonfigurowanie repozytorium (GitHub/GitLab)
+Konfiguracja Vercel do frontendu (automatyczny deploy z branch main)
+Konfiguracja Render/Railway do backendu (deploy on push)
+Ustawienie zmiennych środowiskowych w panelu usług (Auth0 domain, client id, secret, S3 keys, DB url)
+T3: AWS S3
+
+Utworzenie bucketu S3, konfiguracja uprawnień
+Zapewnienie możliwości generowania podpisanych URL-i do uploadu
+Zapewnienie mechanizmu odczytu plików (publiczny dostęp lub podpisane URL-e tylko do odczytu)
+E8: Testy i Optymalizacje
+Testy Podstawowych Scenariuszy
+
+[TE1] Testy rejestracji i logowania (E2E)
+[TE2] Testy tworzenia workspace i dodawania plików (E2E)
+[TE3] Testy dodawania komentarzy (E2E)
+[TE4] Testy wyświetlania odtwarzacza i odsłuchiwania plików (manualne i E2E)
+Optymalizacje i Poprawki
+
+[TO1] Poprawa ewentualnych błędów w UI/UX po pierwszych testach
+[TO2] Usprawnienia w ładowaniu plików audio (lazy loading, preloading w razie potrzeby)
+[TO3] Sprawdzenie logów i ewentualnych błędów w backendzie
