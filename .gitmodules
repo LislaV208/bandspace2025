@@ -1,0 +1,6 @@
+[submodule "bandspace-backend"]
+	path = bandspace-backend
+	url = git@github.com:LislaV208/bandspace-backend.git
+[submodule "bandspace-frontend"]
+	path = bandspace-frontend
+	url = git@github.com:LislaV208/bandspace-frontend.git
